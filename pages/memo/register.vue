@@ -42,10 +42,10 @@
           <button
             type="button"
             class="btn btn-primary"
-            :disabled="disableUpdate"
-            @click="updateMemo"
+            :disabled="disableRegister"
+            @click="registerMemo"
           >
-            更新
+            新規登録
           </button>
         </div>
       </div>
@@ -57,13 +57,7 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'MemoDetailsIdPage',
-  async asyncData({ $axios, params }) {
-    const memo = await $axios.$get(
-      `http://localhost:3000/api/memo/details/${params.id}`
-    )
-    return { memo }
-  },
+  name: 'MemoRegisterPage',
   data(): {
     memo: any
   } {
@@ -73,16 +67,28 @@ export default Vue.extend({
   },
   computed: {
     hasErrorInTitle() {
-      return this.memo.title.length > 32
+      if (this.memo.title != null) {
+        return this.memo.title.length > 32
+      } else {
+        return false
+      }
     },
     hasErrorInDetail() {
-      return this.memo.detail.length > 1024
+      if (this.memo.detail != null) {
+        return this.memo.detail.length > 1024
+      } else {
+        return false
+      }
     },
-    disableUpdate() {
-      if (this.memo.title.length > 32) {
-        return true
-      } else if (this.memo.detail.length > 1024) {
-        return true
+    disableRegister() {
+      if (this.memo.title != null && this.memo.detail != null) {
+        if (this.memo.title.length > 32) {
+          return true
+        } else if (this.memo.detail.length > 1024) {
+          return true
+        } else {
+          return false
+        }
       } else {
         return false
       }
@@ -92,13 +98,15 @@ export default Vue.extend({
     backList(e) {
       this.$router.push('/memo/')
     },
-    async updateMemo(e) {
+    async registerMemo(e) {
       const result = await this.$axios.$post(
-        'http://localhost:3000/api/memo/details/update',
+        'http://localhost:3000/api/memo/register',
         {
           memo: this.memo,
         }
       )
+
+      this.$router.push('/memo/')
     },
   },
 })
